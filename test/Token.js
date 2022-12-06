@@ -1,25 +1,38 @@
 const { expect } = require('chai');
 const { ethers } = require('hardhat');
 
-describe('Token', () => {
+const tokens = (n) => {
+    return ethers.utils.parseUnits(n, 'ether');
+};
 
-    it('has correct name', async () => {
+describe('Token', () => {
+    let token;
+
+    before(async () => {
         // Fetch token from blockchain
         const Token = await ethers.getContractFactory('Token');
-        let token = await Token.deploy();
-        // Read token name
-        const name = await token.name();
-        // Check that name is correct
-        expect(name).to.equal('Dapp University');
+        token = await Token.deploy('Dapp University', 'DAPP', '1000000');
     });
 
-    it('has correct symbol', async () => {
-        // Fetch token from blockchain
-        const Token = await ethers.getContractFactory('Token');
-        let token = await Token.deploy();
-        // Read token symbol
-        const symbol = await token.symbol();
-        // Check that symbol is correct
-        expect(symbol).to.equal('DAPP');
+    describe('Deployment', () => {
+        const name = 'Dapp University';
+        const symbol = 'DAPP';
+        const totalSupply = '1000000';
+
+        it('has correct name', async () => {
+            expect(await token.name()).to.equal(name);
+        });
+
+        it('has correct symbol', async () => {
+            expect(await token.symbol()).to.equal(symbol);
+        });
+
+        it('has correct decimals', async () => {
+            expect(await token.decimals()).to.equal(18);
+        });
+
+        it('has correct total supply', async () => {
+            expect(await token.totalSupply()).to.equal(tokens(totalSupply));
+        });
     });
 });
