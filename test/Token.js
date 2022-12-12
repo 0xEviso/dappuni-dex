@@ -69,9 +69,9 @@ describe('Token', () => {
                 expect(event.event).to.equal('Transfer')
 
                 const args = event.args
-                expect(args._from).to.equal(deployer.address)
-                expect(args._to).to.equal(receiver.address)
-                expect(args._value).to.equal(amount)
+                expect(args.from).to.equal(deployer.address)
+                expect(args.to).to.equal(receiver.address)
+                expect(args.value).to.equal(amount)
             })
         })
 
@@ -116,9 +116,9 @@ describe('Token', () => {
                 expect(event.event).to.equal('Approval')
 
                 const args = event.args
-                expect(args._owner).to.equal(deployer.address)
-                expect(args._spender).to.equal(exchange.address)
-                expect(args._value).to.equal(amount)
+                expect(args.owner).to.equal(deployer.address)
+                expect(args.spender).to.equal(exchange.address)
+                expect(args.value).to.equal(amount)
             })
         })
 
@@ -165,9 +165,9 @@ describe('Token', () => {
                 expect(event.event).to.equal('Transfer')
 
                 const args = event.args
-                expect(args._from).to.equal(deployer.address)
-                expect(args._to).to.equal(receiver.address)
-                expect(args._value).to.equal(amount)
+                expect(args.from).to.equal(deployer.address)
+                expect(args.to).to.equal(receiver.address)
+                expect(args.value).to.equal(amount)
             })
         })
 

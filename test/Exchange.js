@@ -61,10 +61,10 @@ describe('Exchange', () => {
                 expect(event.event).to.equal('Deposit')
 
                 const args = event.args
-                expect(args._token).to.equal(token1.address)
-                expect(args._user).to.equal(user1.address)
-                expect(args._amount).to.equal(amount)
-                expect(args._balance).to.equal(amount)
+                expect(args.token).to.equal(token1.address)
+                expect(args.user).to.equal(user1.address)
+                expect(args.amount).to.equal(amount)
+                expect(args.balance).to.equal(amount)
             })
         })
 
@@ -103,10 +103,10 @@ describe('Exchange', () => {
                 expect(event.event).to.equal('Withdrawal')
 
                 const args = event.args
-                expect(args._token).to.equal(token1.address)
-                expect(args._user).to.equal(user1.address)
-                expect(args._amount).to.equal(amount)
-                expect(args._balance).to.equal(0)
+                expect(args.token).to.equal(token1.address)
+                expect(args.user).to.equal(user1.address)
+                expect(args.amount).to.equal(amount)
+                expect(args.balance).to.equal(0)
             })
         })
 

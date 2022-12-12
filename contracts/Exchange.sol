@@ -13,16 +13,16 @@ contract Exchange {
     uint256 public orderCount = 0;
 
     event Deposit(
-        address _token,
-        address _user,
-        uint256 _amount,
-        uint256 _balance
+        address token,
+        address user,
+        uint256 amount,
+        uint256 balance
     );
     event Withdrawal(
-        address _token,
-        address _user,
-        uint256 _amount,
-        uint256 _balance
+        address token,
+        address user,
+        uint256 amount,
+        uint256 balance
     );
     event Order(
         uint256 id,

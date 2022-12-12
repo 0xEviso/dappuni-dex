@@ -14,15 +14,15 @@ contract Token {
     mapping(address => mapping(address => uint256)) public allowance;
 
     event Transfer(
-        address indexed _from,
-        address indexed _to,
-        uint256 _value
+        address indexed from,
+        address indexed to,
+        uint256 value
     );
 
     event Approval(
-        address indexed _owner,
-        address indexed _spender,
-        uint256 _value
+        address indexed owner,
+        address indexed spender,
+        uint256 value
     );
 
     constructor(
