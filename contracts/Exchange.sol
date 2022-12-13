@@ -10,6 +10,7 @@ contract Exchange {
     uint256 public feePercent;
     mapping(address => mapping(address => uint256)) public tokens;
     mapping (uint256 => _Order) public orders;
+    mapping (uint256 => bool) public orderCancelled;
     uint256 public orderCount = 0;
 
     event Deposit(
@@ -25,6 +26,15 @@ contract Exchange {
         uint256 balance
     );
     event Order(
+        uint256 id,
+        address user,
+        address tokenGet,
+        uint256 amountGet,
+        address tokenGive,
+        uint256 amountGive,
+        uint256 timestamp
+    );
+    event Cancel(
         uint256 id,
         address user,
         address tokenGet,
@@ -118,5 +128,32 @@ contract Exchange {
             _amountGive,
             block.timestamp
         );
+    }
+
+    function cancelOrder(uint256 _orderId) public returns(bool) {
+        // Fetch order
+        _Order storage _order = orders[_orderId];
+
+        // Check that order exists
+        require(_order.id == _orderId);
+
+        // Check that user has write access
+        require(_order.user == msg.sender);
+
+        // Cancel the order
+        orderCancelled[_orderId] = true;
+
+        // Emit event
+        emit Cancel(
+            _order.id,
+            _order.user,
+            _order.tokenGet,
+            _order.amountGet,
+            _order.tokenGive,
+            _order.amountGive,
+            block.timestamp
+        );
+
+        return true;
     }
 }
