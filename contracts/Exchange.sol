@@ -8,9 +8,11 @@ import "./Token.sol";
 contract Exchange {
     address public feeAccount;
     uint256 public feePercent;
+    // mapping token => user => amount
     mapping(address => mapping(address => uint256)) public tokens;
     mapping (uint256 => _Order) public orders;
     mapping (uint256 => bool) public orderCancelled;
+    mapping (uint256 => bool) public orderFilled;
     uint256 public orderCount = 0;
 
     event Deposit(
@@ -37,6 +39,16 @@ contract Exchange {
     event Cancel(
         uint256 id,
         address user,
+        address tokenGet,
+        uint256 amountGet,
+        address tokenGive,
+        uint256 amountGive,
+        uint256 timestamp
+    );
+    event Trade(
+        uint256 id,
+        address maker,
+        address taker,
         address tokenGet,
         uint256 amountGet,
         address tokenGive,
@@ -147,6 +159,53 @@ contract Exchange {
         emit Cancel(
             _order.id,
             _order.user,
+            _order.tokenGet,
+            _order.amountGet,
+            _order.tokenGive,
+            _order.amountGive,
+            block.timestamp
+        );
+
+        return true;
+    }
+
+    function fillOrder(uint256 _orderId) public returns(bool) {
+        // check not already filled
+        require(!orderFilled[_orderId]);
+        // check not cancelled
+        require(!orderCancelled[_orderId]);
+
+        _Order storage _order = orders[_orderId];
+
+        uint256 _feeAmount = _order.amountGet * feePercent / 100;
+
+        // Check that order exists
+        require(_order.id == _orderId);
+
+        // check users have enough balance
+        require(tokens[_order.tokenGet][msg.sender] >=
+            (_order.amountGet + _feeAmount));
+        require(tokens[_order.tokenGive][_order.user] >=
+            _order.amountGive);
+
+        // debit tokenGive from maker account
+        tokens[_order.tokenGive][_order.user] -= _order.amountGive;
+        // credit tokenGive to taker account
+        tokens[_order.tokenGive][msg.sender] += _order.amountGive;
+        // credit tokenGet to maker account
+        tokens[_order.tokenGet][_order.user] += _order.amountGet;
+        // debit tokenGet + fee from taker account
+        tokens[_order.tokenGet][msg.sender] -= (_order.amountGet + _feeAmount);
+        // credit fee acount with tokenGet
+        tokens[_order.tokenGet][feeAccount] += _feeAmount;
+
+        // Record order filled
+        orderFilled[_orderId] = true;
+
+        emit Trade(
+            _orderId,
+            _order.user,
+            msg.sender,
             _order.tokenGet,
             _order.amountGet,
             _order.tokenGive,
