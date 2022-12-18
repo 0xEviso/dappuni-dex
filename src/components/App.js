@@ -1,29 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
-import TOKEN_ABI from '../abis/Token.json';
-import config from '../config.json';
-import '../App.css';
+import React, { useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import config from '../config.json'
+
+import {
+  loadProvider,
+  loadNetwork,
+  loadAccount,
+  loadToken
+} from '../store/interactions'
 
 function App() {
+  const dispatch = useDispatch()
 
   const loadBlockchainData = async () => {
-    const accounts = await window.ethereum.request({
-      method: 'eth_requestAccounts'
-    })
-    console.log(`account0 address: ${accounts[0]}`)
-
     // Connect ethers to local blockchain
-    const provider = new ethers.providers.Web3Provider(window.ethereum)
-
-    const { chainId } = await provider.getNetwork();
-    console.log(`chainId: ${chainId}`)
+    await loadAccount(dispatch)
+    const provider = loadProvider(dispatch)
+    const chainId = await loadNetwork(provider, dispatch)
 
     // Token Smart Contract
-    const token = new ethers.Contract(config[chainId].mDAI.address, TOKEN_ABI, provider)
-    console.log(`token.address: ${token.address}`)
-
-    const symbol = await token.symbol()
-    console.log(`symbol: ${symbol}`)
+    await loadToken(provider, config[chainId].mDAI.address, dispatch)
   }
 
   // https://reactjs.org/docs/hooks-effect.html
@@ -63,7 +59,7 @@ function App() {
       {/* Alert */}
 
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
