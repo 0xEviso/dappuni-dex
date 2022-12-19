@@ -6,7 +6,8 @@ import {
   loadProvider,
   loadNetwork,
   loadAccount,
-  loadToken
+  loadTokens,
+  loadExchange
 } from '../store/interactions'
 
 function App() {
@@ -14,12 +15,20 @@ function App() {
 
   const loadBlockchainData = async () => {
     // Connect ethers to local blockchain
-    await loadAccount(dispatch)
     const provider = loadProvider(dispatch)
     const chainId = await loadNetwork(provider, dispatch)
 
+    // Load Account infos
+    await loadAccount(provider, dispatch)
+
     // Token Smart Contract
-    await loadToken(provider, config[chainId].mDAI.address, dispatch)
+    await loadTokens(
+      provider,
+      [ config[chainId].mDAI.address, config[chainId].mETH.address ],
+      dispatch
+    )
+    // Exchange Smart Contract
+    await loadExchange(provider, config[chainId].exchange.address, dispatch)
   }
 
   // https://reactjs.org/docs/hooks-effect.html

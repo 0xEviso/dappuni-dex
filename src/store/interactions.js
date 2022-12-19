@@ -1,5 +1,7 @@
 import { ethers } from "ethers"
 import TOKEN_ABI from "../abis/Token.json"
+import EXCHANGE_ABI from "../abis/Exchange.json"
+import { provider } from "./reducers"
 
 export const loadProvider = (dispatch) => {
   // Connect ethers to local blockchain
@@ -16,28 +18,37 @@ export const loadNetwork = async (provider, dispatch) => {
   return chainId
 }
 
-export const loadAccount = async (dispatch) => {
+export const loadAccount = async (provider, dispatch) => {
   const accounts = await window.ethereum.request({
     method: 'eth_requestAccounts'
   })
   const account = ethers.utils.getAddress(accounts[0])
   dispatch({ type: 'ACCOUNT_LOADED', account })
 
-  return account
+  let balance = await provider.getBalance(account)
+  balance = ethers.utils.formatEther(balance)
+  dispatch({ type: 'ETHER_BALANCE_LOADED', balance })
+
+  return { account, balance }
 }
 
 // Token Smart Contract
-export const loadToken = async (provider, address, dispatch) => {
-  let token, symbol
+export const loadTokens = async (provider, addresses, dispatch) => {
+  const token1 = new ethers.Contract(addresses[0], TOKEN_ABI, provider)
+  const symbol1 = await token1.symbol()
+  dispatch({ type: 'TOKEN_1_LOADED', token1, symbol1 })
 
-  token = new ethers.Contract(
-    address,
-    TOKEN_ABI,
-    provider
-  )
-  symbol = await token.symbol()
+  const token2 = new ethers.Contract(addresses[1], TOKEN_ABI, provider)
+  const symbol2 = await token2.symbol()
+  dispatch({ type: 'TOKEN_2_LOADED', token2, symbol2 })
 
-  dispatch({ type: 'TOKEN_LOADED', token, symbol })
+  return { token1, token2 }
+}
 
-  return token
+// Exchange Smart Contract
+export const loadExchange = async (provider, address, dispatch) => {
+  const exchange = new ethers.Contract(address, EXCHANGE_ABI, provider)
+  dispatch({ type: 'EXCHANGE_LOADED', exchange })
+
+  return exchange
 }
