@@ -37,8 +37,8 @@ export const tokens = (state = TOKENS_DEFAULT_STATE, action) => {
       return {
         ...state,
         loaded: true,
-        contracts: [...state.contracts, action.token1],
-        symbols: [...state.symbols, action.symbol1],
+        contracts: [action.token1],
+        symbols: [action.symbol1],
       }
     case 'TOKEN_2_LOADED':
       return {
