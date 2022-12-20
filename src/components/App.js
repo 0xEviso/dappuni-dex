@@ -10,6 +10,8 @@ import {
   loadExchange
 } from '../store/interactions'
 
+import Navbar from './Navbar'
+
 function App() {
   const dispatch = useDispatch()
 
@@ -18,17 +20,27 @@ function App() {
     const provider = loadProvider(dispatch)
     const chainId = await loadNetwork(provider, dispatch)
 
-    // Load Account infos
-    await loadAccount(provider, dispatch)
+    // Reload page when network is changed
+    window.ethereum.on('chainChanged', () => {
+      window.location.reload()
+    })
 
-    // Token Smart Contract
-    await loadTokens(
-      provider,
-      [ config[chainId].mDAI.address, config[chainId].mETH.address ],
-      dispatch
-    )
-    // Exchange Smart Contract
-    await loadExchange(provider, config[chainId].exchange.address, dispatch)
+    // Reload Account infos on change
+    window.ethereum.on('accountsChanged', (accounts) => {
+      loadAccount(provider, dispatch)
+    })
+
+    // check that we have config settings for selected chain id
+    if (config[chainId] && config[chainId].exchange) {
+      // Token Smart Contract
+      await loadTokens(
+        provider,
+        [ config[chainId].mDAI.address, config[chainId].mETH.address ],
+        dispatch
+      )
+      // Exchange Smart Contract
+      await loadExchange(provider, config[chainId].exchange.address, dispatch)
+    }
   }
 
   // https://reactjs.org/docs/hooks-effect.html
@@ -40,7 +52,7 @@ function App() {
   return (
     <div>
 
-      {/* Navbar */}
+      <Navbar />
 
       <main className='exchange grid'>
         <section className='exchange__section--left grid'>

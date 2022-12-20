@@ -1,7 +1,6 @@
 import { ethers } from "ethers"
 import TOKEN_ABI from "../abis/Token.json"
 import EXCHANGE_ABI from "../abis/Exchange.json"
-import { provider } from "./reducers"
 
 export const loadProvider = (dispatch) => {
   // Connect ethers to local blockchain
