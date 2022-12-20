@@ -51,61 +51,70 @@ async function main() {
   //
 
   let transaction, result
-  let amount = tokens(10000)
+  let transferAmount = tokens(10000)
+  let depositAmount = tokens(1000)
+
+  //
+  // USER 1 SETUP
+  //
 
   // Give DAPP tokens to user1
   transaction = await DApp.connect(deployer)
-    .transfer(user1.address, amount)
+    .transfer(user1.address, transferAmount)
   result = await transaction.wait()
-  console.log(`Transferred ${amount} DAPP tokens to ${user1.address}`)
+  console.log(`Transferred ${transferAmount} DAPP tokens to ${user1.address}`)
 
   // Approve DAPP tokens for user 1
   transaction = await DApp.connect(user1)
-    .approve(exchange.address, amount)
+    .approve(exchange.address, depositAmount)
   result = await transaction.wait()
-  console.log(`Approved ${amount} DAPP tokens from ${user1.address}`)
+  console.log(`Approved ${depositAmount} DAPP tokens from ${user1.address}`)
 
   // Deposit DAPP tokens for user 1
   transaction = await exchange.connect(user1)
-    .depositToken(DApp.address, amount)
+    .depositToken(DApp.address, depositAmount)
   result = await transaction.wait()
-  console.log(`Deposited ${amount} DAPP tokens from ${user1.address}`)
+  console.log(`Deposited ${depositAmount} DAPP tokens from ${user1.address}`)
+
+  //
+  // USER 2 SETUP
+  //
 
   // Give mDai tokens to user2
   transaction = await mDAI.connect(deployer)
-    .transfer(user2.address, amount)
+    .transfer(user2.address, transferAmount)
   result = await transaction.wait()
-  console.log(`Transferred ${amount} mDAI tokens to ${user2.address}`)
+  console.log(`Transferred ${transferAmount} mDAI tokens to ${user2.address}`)
 
   // Approve mDai tokens for user 2
   transaction = await mDAI.connect(user2)
-    .approve(exchange.address, amount)
+    .approve(exchange.address, depositAmount)
   result = await transaction.wait()
-  console.log(`Approved ${amount} mDAI tokens from ${user2.address}`)
+  console.log(`Approved ${depositAmount} mDAI tokens from ${user2.address}`)
 
   // Deposit mDai tokens for user 2
   transaction = await exchange.connect(user2)
-    .depositToken(mDAI.address, amount)
+    .depositToken(mDAI.address, depositAmount)
   result = await transaction.wait()
-  console.log(`Deposited ${amount} mDAI tokens from ${user2.address}`)
+  console.log(`Deposited ${depositAmount} mDAI tokens from ${user2.address}`)
 
   // Give mETH tokens to user2
   transaction = await mETH.connect(deployer)
-    .transfer(user2.address, amount)
+    .transfer(user2.address, transferAmount)
   result = await transaction.wait()
-  console.log(`Transferred ${amount} mETH tokens to ${user2.address}`)
+  console.log(`Transferred ${transferAmount} mETH tokens to ${user2.address}`)
 
   // Approve mETH tokens for user 2
   transaction = await mETH.connect(user2)
-    .approve(exchange.address, amount)
+    .approve(exchange.address, depositAmount)
   result = await transaction.wait()
-  console.log(`Approved ${amount} mETH tokens from ${user2.address}`)
+  console.log(`Approved ${depositAmount} mETH tokens from ${user2.address}`)
 
   // Deposit mETH tokens for user 2
   transaction = await exchange.connect(user2)
-    .depositToken(mETH.address, amount)
+    .depositToken(mETH.address, depositAmount)
   result = await transaction.wait()
-  console.log(`Deposited ${amount} mETH tokens from ${user2.address}`)
+  console.log(`Deposited ${depositAmount} mETH tokens from ${user2.address}`)
 
 
   //
