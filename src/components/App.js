@@ -12,6 +12,7 @@ import {
 
 import Navbar from './Navbar'
 import Markets from './Markets'
+import Balance from './Balance'
 
 function App() {
   const dispatch = useDispatch()
@@ -36,7 +37,7 @@ function App() {
       // Token Smart Contract
       await loadTokens(
         provider,
-        [ config[chainId].mDAI.address, config[chainId].mETH.address ],
+        [ config[chainId].DApp.address, config[chainId].mETH.address ],
         dispatch
       )
       // Exchange Smart Contract
@@ -60,7 +61,7 @@ function App() {
 
           <Markets />
 
-          {/* Balance */}
+          <Balance />
 
           {/* Order */}
 
