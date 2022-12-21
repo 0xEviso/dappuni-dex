@@ -66,6 +66,9 @@ const EXCHANGE_DEFAULT_STATE = {
   loaded: false,
   contract: null,
   balances: [],
+  transaction: {
+    isPending: false,
+  }
 }
 export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
   switch (action.type) {
@@ -84,6 +87,22 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
       return {
         ...state,
         balances: [...state.balances, action.balance],
+      }
+    case 'TRANSACTION_PENDING':
+      return {
+        ...state,
+        balances: [...state.balances, action.balance],
+        transaction: {
+          isPending: true,
+        },
+      }
+    case 'TRANSACTION_COMPLETED':
+      return {
+        ...state,
+        balances: [...state.balances, action.balance],
+        transaction: {
+          isPending: false,
+        },
       }
     default:
       return state

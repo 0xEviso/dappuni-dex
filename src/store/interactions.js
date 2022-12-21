@@ -73,3 +73,24 @@ export const loadTokensBalance = async (account, exchange, tokens, dispatch) => 
   balance = ethers.utils.formatUnits(balance, 18)
   dispatch({ type: 'EXCHANGE_TOKEN_2_BALANCE_LOADED', balance })
 }
+
+export const depositTokens = async (provider, amount, exchange, token, dispatch) => {
+  dispatch({ type: 'TRANSACTION_PENDING' })
+
+  const signer = await provider.getSigner()
+
+  let depositAmount = ethers.utils.parseUnits(amount, 18)
+  let transaction, result
+
+  // Approve tokens
+  transaction = await token.connect(signer)
+    .approve(exchange.address, depositAmount)
+  result = await transaction.wait()
+
+  // Deposit tokens
+  transaction = await exchange.connect(signer)
+    .depositToken(token.address, depositAmount)
+  result = await transaction.wait()
+
+  dispatch({ type: 'TRANSACTION_COMPLETED' })
+}
