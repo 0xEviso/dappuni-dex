@@ -27,6 +27,15 @@ function App() {
       window.location.reload()
     })
 
+     // This checks if the browser has a web3 account that was previously
+    // connected without triggering the wallet login popup
+    // if the wallet was previously connected, we can silently load the account
+    const accounts = await window.ethereum.request({
+      method: 'eth_accounts'
+    })
+    if (accounts && accounts.length)
+      await loadAccount(provider, dispatch)
+
     // Reload Account infos on change
     window.ethereum.on('accountsChanged', (accounts) => {
       loadAccount(provider, dispatch)
