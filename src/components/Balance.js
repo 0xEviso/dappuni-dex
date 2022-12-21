@@ -1,7 +1,8 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 import dapp from '../assets/dapp.svg'
+import eth from '../assets/eth.svg'
 
 import { loadTokensBalance, depositTokens } from '../store/interactions'
 
@@ -13,30 +14,41 @@ const Balance = () => {
   const tokens = useSelector(store => store.tokens.contracts)
   const provider = useSelector(store => store.provider.connection)
 
+  const tokenSymbols = useSelector(store => store.tokens.symbols)
   const tokenBalances = useSelector(store => store.tokens.balances)
   const exchangeBalances = useSelector(store => store.exchange.balances)
   const txIsPending = useSelector(store => store.exchange.transaction.isPending)
 
   let [token1DepositAmount, setToken1DepositAmount] = useState(0)
+  let [token2DepositAmount, setToken2DepositAmount] = useState(0)
 
-  const handleChange = (event) => {
-    setToken1DepositAmount(event.target.value)
+  const amountHandler = (event, token) => {
+    if (token.address == tokens[0].address) {
+      setToken1DepositAmount(event.target.value)
+    } else {
+      setToken2DepositAmount(event.target.value)
+    }
   }
 
-  const submitHandlerFactory = (token) => {
-    return (e) => {
-      e.preventDefault()
+  const submitHandler = (e, token) => {
+    e.preventDefault()
 
-      // Check that something has been entered in the input
+    // check that user wallet is connected
+    if (!account)
+      return ;
+
+    if (token.address == tokens[0].address) {
+      // if empty or 0 amount stop here
       if (0 === token1DepositAmount)
-        return ;
-        // check that user wallet is connected
-      if (!account)
-        return ;
-
+      return
       depositTokens(provider, token1DepositAmount, exchange, token, dispatch)
-
       setToken1DepositAmount(0)
+    } else {
+      // if empty or 0 amount stop here
+      if (0 === token2DepositAmount)
+        return
+      depositTokens(provider, token2DepositAmount, exchange, token, dispatch)
+      setToken2DepositAmount(0)
     }
   }
 
@@ -72,14 +84,14 @@ const Balance = () => {
           </p>
         </div>
 
-        <form onSubmit={submitHandlerFactory(tokens[0])}>
+        <form onSubmit={(e) => submitHandler(e, tokens[0])}>
           <label htmlFor="token0"></label>
           <input
-            type="text"
-            id='token0'
-            placeholder='0.0000'
+            type="number"
+            id="token1"
+            placeholder="0.00"
             value={token1DepositAmount ? token1DepositAmount : ''}
-            onChange={handleChange}
+            onChange={(e) => amountHandler(e, tokens[0])}
           />
 
           <button className='button' type='submit'>
@@ -94,15 +106,31 @@ const Balance = () => {
 
       <div className='exchange__transfers--form'>
         <div className='flex-between'>
-
+          <p><small>Token</small><br /><img src={eth} alt="Token Logo" />{tokenSymbols && tokenSymbols[1]}</p>
+          <p><small>Wallet</small><br />
+            {(tokenBalances && tokenBalances[0]) ? (
+              parseInt(tokenBalances[1]).toFixed(2)
+            ):''}
+          </p>
+          <p><small>Exchange</small><br />
+            {(exchangeBalances && exchangeBalances[1]) ? (
+              parseInt(exchangeBalances[1]).toFixed(2)
+            ):''}
+          </p>
         </div>
 
-        <form>
+        <form onSubmit={(e) => submitHandler(e, tokens[1])}>
           <label htmlFor="token1"></label>
-          <input type="text" id='token1' placeholder='0.0000'/>
+          <input
+            type="text"
+            id="token1"
+            placeholder="0.00"
+            value={token2DepositAmount ? token2DepositAmount : ''}
+            onChange={(e) => amountHandler(e, tokens[1])}
+          />
 
           <button className='button' type='submit'>
-            <span></span>
+            <span>Deposit</span>
           </button>
         </form>
       </div>
