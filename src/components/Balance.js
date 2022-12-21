@@ -21,6 +21,7 @@ const Balance = () => {
 
   let [token1DepositAmount, setToken1DepositAmount] = useState(0)
   let [token2DepositAmount, setToken2DepositAmount] = useState(0)
+  let [isDepositMode, setDepositMode] = useState(true)
 
   const amountHandler = (event, token) => {
     if (token.address == tokens[0].address) {
@@ -62,8 +63,18 @@ const Balance = () => {
       <div className='component__header flex-between'>
         <h2>Balance</h2>
         <div className='tabs'>
-          <button className='tab tab--active'>Deposit</button>
-          <button className='tab'>Withdraw</button>
+          <button
+            className={isDepositMode? "tab tab--active" : "tab"}
+            onClick={(e) => {setDepositMode(true)}}
+          >
+            Deposit
+          </button>
+          <button
+            className={isDepositMode? "tab" : "tab tab--active"}
+            onClick={(e) => {setDepositMode(false)}}
+          >
+            Withdraw
+          </button>
         </div>
       </div>
 
@@ -95,7 +106,10 @@ const Balance = () => {
           />
 
           <button className='button' type='submit'>
-            <span>Deposit</span>
+            {isDepositMode
+              ? <span>Deposit</span>
+              : <span>Withdraw</span>
+            }
           </button>
         </form>
       </div>
@@ -130,7 +144,10 @@ const Balance = () => {
           />
 
           <button className='button' type='submit'>
-            <span>Deposit</span>
+            {isDepositMode
+              ? <span>Deposit</span>
+              : <span>Withdraw</span>
+            }
           </button>
         </form>
       </div>
