@@ -64,6 +64,18 @@ async function main() {
   result = await transaction.wait()
   console.log(`Transferred ${transferAmount} DAPP tokens to ${user1.address}`)
 
+  // Give mETH tokens to user1
+  transaction = await mETH.connect(deployer)
+    .transfer(user1.address, transferAmount)
+  result = await transaction.wait()
+  console.log(`Transferred ${transferAmount} mETH tokens to ${user1.address}`)
+
+  // Give mDAI tokens to user1
+  transaction = await mDAI.connect(deployer)
+    .transfer(user1.address, transferAmount)
+  result = await transaction.wait()
+  console.log(`Transferred ${transferAmount} mDAI tokens to ${user1.address}`)
+
   // Approve DAPP tokens for user 1
   transaction = await DApp.connect(user1)
     .approve(exchange.address, depositAmount)
