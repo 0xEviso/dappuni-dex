@@ -74,23 +74,42 @@ export const loadTokensBalance = async (account, exchange, tokens, dispatch) => 
   dispatch({ type: 'EXCHANGE_TOKEN_2_BALANCE_LOADED', balance })
 }
 
-export const depositTokens = async (provider, amount, exchange, token, dispatch) => {
+export const subscribeToEvents = async (exchange, dispatch) => {
+  const transferEventsHandler = async (tokenAddress, userAddress, amount, balance) => {
+    dispatch({ type: 'TRANSACTION_SUCCESS' })
+  }
+  exchange.on('Deposit', transferEventsHandler);
+  exchange.on('Withdrawal', transferEventsHandler);
+}
+
+export const transferTokens = async (provider, transferType, amount, exchange, token, dispatch) => {
   dispatch({ type: 'TRANSACTION_PENDING' })
 
-  const signer = await provider.getSigner()
+  try {
+    const signer = await provider.getSigner()
 
-  let depositAmount = ethers.utils.parseUnits(amount, 18)
-  let transaction, result
+    let transferAmount = ethers.utils.parseUnits(amount, 18)
+    let transaction
 
-  // Approve tokens
-  transaction = await token.connect(signer)
-    .approve(exchange.address, depositAmount)
-  result = await transaction.wait()
+    // DEPOSIT
+    if ('deposit' === transferType) {
+      // Approve tokens
+      transaction = await token.connect(signer)
+        .approve(exchange.address, transferAmount)
+      await transaction.wait()
 
-  // Deposit tokens
-  transaction = await exchange.connect(signer)
-    .depositToken(token.address, depositAmount)
-  result = await transaction.wait()
-
-  dispatch({ type: 'TRANSACTION_COMPLETED' })
+      // Deposit tokens
+      transaction = await exchange.connect(signer)
+        .depositToken(token.address, transferAmount)
+      await transaction.wait()
+    } else {
+      // WITHDRAWAL
+      // withdraw from exchange contract
+      transaction = await exchange.connect(signer)
+        .withdrawToken(token.address, transferAmount)
+      await transaction.wait()
+    }
+  } catch (error) {
+    dispatch({ type: 'TRANSACTION_FAIL', error })
+  }
 }

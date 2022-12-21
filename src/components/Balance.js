@@ -1,10 +1,10 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 
 import dapp from '../assets/dapp.svg'
 import eth from '../assets/eth.svg'
 
-import { loadTokensBalance, depositTokens } from '../store/interactions'
+import { loadTokensBalance, transferTokens } from '../store/interactions'
 
 const Balance = () => {
   const dispatch = useDispatch()
@@ -17,17 +17,17 @@ const Balance = () => {
   const tokenSymbols = useSelector(store => store.tokens.symbols)
   const tokenBalances = useSelector(store => store.tokens.balances)
   const exchangeBalances = useSelector(store => store.exchange.balances)
-  const txIsPending = useSelector(store => store.exchange.transaction.isPending)
+  const txIsPending = useSelector(store => store.exchange.transferInProgress)
 
-  let [token1DepositAmount, setToken1DepositAmount] = useState(0)
-  let [token2DepositAmount, setToken2DepositAmount] = useState(0)
+  let [token1Amount, setToken1Amount] = useState(0)
+  let [token2Amount, setToken2Amount] = useState(0)
   let [isDepositMode, setDepositMode] = useState(true)
 
   const amountHandler = (event, token) => {
-    if (token.address == tokens[0].address) {
-      setToken1DepositAmount(event.target.value)
+    if (token.address === tokens[0].address) {
+      setToken1Amount(event.target.value)
     } else {
-      setToken2DepositAmount(event.target.value)
+      setToken2Amount(event.target.value)
     }
   }
 
@@ -38,18 +38,26 @@ const Balance = () => {
     if (!account)
       return ;
 
-    if (token.address == tokens[0].address) {
+    if (token.address === tokens[0].address) {
       // if empty or 0 amount stop here
-      if (0 === token1DepositAmount)
-      return
-      depositTokens(provider, token1DepositAmount, exchange, token, dispatch)
-      setToken1DepositAmount(0)
+      if (0 === token1Amount)
+        return
+      if (true === isDepositMode) {
+        transferTokens(provider, 'deposit', token1Amount, exchange, token, dispatch)
+      } else {
+        transferTokens(provider, 'withdrawal', token1Amount, exchange, token, dispatch)
+      }
+      setToken1Amount(0)
     } else {
       // if empty or 0 amount stop here
-      if (0 === token2DepositAmount)
+      if (0 === token2Amount)
         return
-      depositTokens(provider, token2DepositAmount, exchange, token, dispatch)
-      setToken2DepositAmount(0)
+      if (true === isDepositMode) {
+        transferTokens(provider, 'deposit', token2Amount, exchange, token, dispatch)
+      } else {
+        transferTokens(provider, 'withdrawal', token2Amount, exchange, token, dispatch)
+      }
+      setToken2Amount(0)
     }
   }
 
@@ -57,7 +65,7 @@ const Balance = () => {
     if (account && exchange && tokens[0] && tokens[1]) {
       loadTokensBalance(account, exchange, tokens, dispatch)
     }
-  }, [account, exchange, tokens, txIsPending])
+  }, [account, exchange, tokens, dispatch, txIsPending])
   return (
     <div className='component exchange__transfers'>
       <div className='component__header flex-between'>
@@ -101,7 +109,7 @@ const Balance = () => {
             type="number"
             id="token1"
             placeholder="0.00"
-            value={token1DepositAmount ? token1DepositAmount : ''}
+            value={token1Amount ? token1Amount : ''}
             onChange={(e) => amountHandler(e, tokens[0])}
           />
 
@@ -139,7 +147,7 @@ const Balance = () => {
             type="text"
             id="token1"
             placeholder="0.00"
-            value={token2DepositAmount ? token2DepositAmount : ''}
+            value={token2Amount ? token2Amount : ''}
             onChange={(e) => amountHandler(e, tokens[1])}
           />
 

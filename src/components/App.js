@@ -7,7 +7,8 @@ import {
   loadNetwork,
   loadAccount,
   loadTokens,
-  loadExchange
+  loadExchange,
+  subscribeToEvents
 } from '../store/interactions'
 
 import Navbar from './Navbar'
@@ -36,7 +37,7 @@ function App() {
     if (accounts && accounts.length)
       await loadAccount(provider, dispatch)
 
-    // Reload Account infos on change
+    // Reload Account infos on Account change
     window.ethereum.on('accountsChanged', (accounts) => {
       loadAccount(provider, dispatch)
     })
@@ -50,7 +51,10 @@ function App() {
         dispatch
       )
       // Exchange Smart Contract
-      await loadExchange(provider, config[chainId].exchange.address, dispatch)
+      const exchange = await loadExchange(provider, config[chainId].exchange.address, dispatch)
+
+      // Hookup contracts event listener
+      subscribeToEvents(exchange, dispatch)
     }
   }
 
