@@ -23,14 +23,6 @@ const Balance = () => {
   let [token2Amount, setToken2Amount] = useState(0)
   let [isDepositMode, setDepositMode] = useState(true)
 
-  const amountHandler = (event, token) => {
-    if (token.address === tokens[0].address) {
-      setToken1Amount(event.target.value)
-    } else {
-      setToken2Amount(event.target.value)
-    }
-  }
-
   const submitHandler = (e, token) => {
     e.preventDefault()
 
@@ -110,7 +102,7 @@ const Balance = () => {
             id="token1"
             placeholder="0.00"
             value={token1Amount ? token1Amount : ''}
-            onChange={(e) => amountHandler(e, tokens[0])}
+            onChange={(e) => setToken1Amount(e.target.value)}
           />
 
           <button className='button' type='submit'>
@@ -148,7 +140,7 @@ const Balance = () => {
             id="token1"
             placeholder="0.00"
             value={token2Amount ? token2Amount : ''}
-            onChange={(e) => amountHandler(e, tokens[1])}
+            onChange={(e) => setToken2Amount(e.target.value)}
           />
 
           <button className='button' type='submit'>
