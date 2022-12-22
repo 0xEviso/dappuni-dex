@@ -75,8 +75,14 @@ export const loadTokensBalance = async (account, exchange, tokens, dispatch) => 
 }
 
 export const subscribeToEvents = async (exchange, dispatch) => {
-  const transferEventsHandler = async (tokenAddress, userAddress, amount, balance) => {
-    dispatch({ type: 'TRANSACTION_SUCCESS' })
+  const transferEventsHandler = async (
+    tokenAddress,
+    userAddress,
+    amount,
+    balance,
+    event
+  ) => {
+    dispatch({ type: 'TRANSACTION_SUCCESS', event })
   }
   exchange.on('Deposit', transferEventsHandler);
   exchange.on('Withdrawal', transferEventsHandler);
