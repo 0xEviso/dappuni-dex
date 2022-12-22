@@ -31,22 +31,28 @@ const Balance = () => {
       return ;
 
     if (token.address === tokens[0].address) {
+      // token 1 logic
       // if empty or 0 amount stop here
       if (0 === token1Amount)
         return
       if (true === isDepositMode) {
+        // token 1 deposit
         transferTokens(provider, 'deposit', token1Amount, exchange, token, dispatch)
       } else {
+        // token 1 withdrawal
         transferTokens(provider, 'withdrawal', token1Amount, exchange, token, dispatch)
       }
       setToken1Amount(0)
     } else {
+      // token 2 logic
       // if empty or 0 amount stop here
       if (0 === token2Amount)
         return
       if (true === isDepositMode) {
+        // token 2 deposit
         transferTokens(provider, 'deposit', token2Amount, exchange, token, dispatch)
       } else {
+        // token 2 withdrawal
         transferTokens(provider, 'withdrawal', token2Amount, exchange, token, dispatch)
       }
       setToken2Amount(0)
