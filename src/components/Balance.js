@@ -88,7 +88,7 @@ const Balance = () => {
 
       <div className='exchange__transfers--form'>
         <div className='flex-between'>
-          <p><small>Token</small><br /><img src={dapp} alt="Token Logo" />DApp</p>
+          <p><small>Token</small><br /><img src={dapp} alt="Token Logo" />{tokenSymbols && tokenSymbols[0]}</p>
           <p><small>Wallet</small><br />
             {(tokenBalances && tokenBalances[0]) ? (
               parseInt(tokenBalances[0]).toFixed(2)
