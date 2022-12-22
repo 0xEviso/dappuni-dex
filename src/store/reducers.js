@@ -1,3 +1,5 @@
+import _ from "lodash"
+
 export const provider = (state = {}, action) => {
   switch (action.type) {
     case 'PROVIDER_LOADED':
@@ -67,6 +69,11 @@ const EXCHANGE_DEFAULT_STATE = {
   contract: null,
   balances: [],
   transferInProgress: false,
+  orderBook: {
+    loaded: false,
+    orderInProgress: false,
+    orders: [],
+  }
 }
 export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
   switch (action.type) {
@@ -103,6 +110,37 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
         ...state,
         balances: [...state.balances, action.balance],
         transferInProgress: false,
+      }
+    case 'NEW_ORDER_PENDING':
+      return {
+        ...state,
+        orderBook: {
+          ...state.orderBook,
+          orderInProgress: true,
+        },
+      }
+    case 'NEW_ORDER_FAIL':
+      return {
+        ...state,
+        orderBook: {
+          ...state.orderBook,
+          orderInProgress: false,
+        },
+      }
+    case 'NEW_ORDER_SUCCESS':
+      // DEDUP checking if the new order is already in the orders array
+      // sometimes the event is fired multiple times
+      const orders = state.orderBook.orders
+      if (-1 === _.findIndex(orders, { 'id': action.order.id }))
+        orders.push(action.order)
+
+      return {
+        ...state,
+        orderBook: {
+          ...state.orderBook,
+          orderInProgress: false,
+          orders,
+        },
       }
     default:
       return state

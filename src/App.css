@@ -502,6 +502,10 @@ input {
 	position: relative;
 }
 
+input:disabled {
+	background: var(--clr-secondary);
+}
+
 input::placeholder {
 	color: var(--clr-neutral);
 }
