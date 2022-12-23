@@ -31,6 +31,15 @@ export const loadAccount = async (provider, dispatch) => {
   return { account, balance }
 }
 
+// Load all past orders
+export const loadAllOrders = async (provider, exchange, dispatch) => {
+  const lastBlock = await provider.getBlockNumber()
+  const result = await exchange.queryFilter('Order', 0, lastBlock)
+  const orders = result.map(o => o.args)
+
+  dispatch({ type: 'ALL_ORDERS_LOADED', orders })
+}
+
 // Token Smart Contract
 export const loadTokens = async (provider, addresses, dispatch) => {
   const token1 = new ethers.Contract(addresses[0], TOKEN_ABI, provider)
@@ -97,7 +106,6 @@ export const subscribeToEvents = async (exchange, dispatch) => {
     timestamp,
     event
   ) => {
-
     const order = event.args
     dispatch({ type: 'NEW_ORDER_SUCCESS', order, event })
   });

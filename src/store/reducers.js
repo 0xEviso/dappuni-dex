@@ -77,12 +77,15 @@ const EXCHANGE_DEFAULT_STATE = {
 }
 export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
   switch (action.type) {
+    // EXCHANGE LOADING
     case 'EXCHANGE_LOADED':
       return {
         ...state,
         loaded: true,
         contract: action.exchange,
       }
+
+    // TOKEN PAIR LOADING
     case 'EXCHANGE_TOKEN_1_BALANCE_LOADED':
       return {
         ...state,
@@ -93,6 +96,8 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
         ...state,
         balances: [...state.balances, action.balance],
       }
+
+    // DEPOSIT / WITHDRAWAL
     case 'TRANSACTION_PENDING':
       return {
         ...state,
@@ -111,6 +116,19 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
         balances: [...state.balances, action.balance],
         transferInProgress: false,
       }
+
+    // ALL ORDERS LOADING
+    case 'ALL_ORDERS_LOADED':
+      return {
+        ...state,
+        orderBook: {
+          ...state.orderBook,
+          orders: action.orders,
+          loaded: true,
+        }
+      }
+
+    // NEW ORDER CREATION
     case 'NEW_ORDER_PENDING':
       return {
         ...state,
