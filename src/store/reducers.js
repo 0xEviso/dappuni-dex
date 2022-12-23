@@ -69,11 +69,19 @@ const EXCHANGE_DEFAULT_STATE = {
   contract: null,
   balances: [],
   transferInProgress: false,
-  orderBook: {
+  all: {
     loaded: false,
     orderInProgress: false,
     orders: [],
-  }
+  },
+  filled: {
+    loaded: false,
+    orders: [],
+  },
+  cancelled: {
+    loaded: false,
+    orders: [],
+  },
 }
 export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
   switch (action.type) {
@@ -118,11 +126,29 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
       }
 
     // ALL ORDERS LOADING
+    case 'CANCELLED_ORDERS_LOADED':
+      return {
+        ...state,
+        cancelled: {
+          ...state.cancelled,
+          orders: action.orders,
+          loaded: true,
+        }
+      }
+    case 'FILLED_ORDERS_LOADED':
+      return {
+        ...state,
+        filled: {
+          ...state.filled,
+          orders: action.orders,
+          loaded: true,
+        }
+      }
     case 'ALL_ORDERS_LOADED':
       return {
         ...state,
-        orderBook: {
-          ...state.orderBook,
+        all: {
+          ...state.all,
           orders: action.orders,
           loaded: true,
         }
@@ -132,16 +158,16 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
     case 'NEW_ORDER_PENDING':
       return {
         ...state,
-        orderBook: {
-          ...state.orderBook,
+        all: {
+          ...state.all,
           orderInProgress: true,
         },
       }
     case 'NEW_ORDER_FAIL':
       return {
         ...state,
-        orderBook: {
-          ...state.orderBook,
+        all: {
+          ...state.all,
           orderInProgress: false,
         },
       }
@@ -152,15 +178,15 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
       if (-1 === _.findIndex(orders, { 'id': action.order.id })) {
         // recreating a new array here is important so that reduc knows
         // that the data changed. Using .push() for example would not work
-        orders = [...state.orderBook.orders, action.order]
+        orders = [...state.all.orders, action.order]
       } else {
-        orders = state.orderBook.orders
+        orders = state.all.orders
       }
 
       return {
         ...state,
-        orderBook: {
-          ...state.orderBook,
+        all: {
+          ...state.all,
           orderInProgress: false,
           orders,
         },

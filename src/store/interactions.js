@@ -33,11 +33,23 @@ export const loadAccount = async (provider, dispatch) => {
 
 // Load all past orders
 export const loadAllOrders = async (provider, exchange, dispatch) => {
+  let result
   const lastBlock = await provider.getBlockNumber()
-  const result = await exchange.queryFilter('Order', 0, lastBlock)
-  const orders = result.map(o => o.args)
 
-  dispatch({ type: 'ALL_ORDERS_LOADED', orders })
+  // Fetch canceled orders
+  result = await exchange.queryFilter('Cancel', 0, lastBlock)
+  const cancelledOrders = result.map(e => e.args)
+  dispatch({ type: 'CANCELLED_ORDERS_LOADED', orders: cancelledOrders })
+
+  // Fetch filled orders
+  result = await exchange.queryFilter('Trade', 0, lastBlock)
+  const filledOrders = result.map(e => e.args)
+  dispatch({ type: 'FILLED_ORDERS_LOADED', orders: filledOrders })
+
+  // Fetch all orders
+  result = await exchange.queryFilter('Order', 0, lastBlock)
+  const allOrders = result.map(e => e.args)
+  dispatch({ type: 'ALL_ORDERS_LOADED', orders: allOrders })
 }
 
 // Token Smart Contract

@@ -46,12 +46,35 @@ function sortAndGroupByBuySell(orders) {
   return _.groupBy(sortedOrders, 'buySell')
 }
 
+function filterOpenOrders(openOrders, cancelledOrders, filledOrders) {
+  // remove all elements that return true
+  // it mutates the original array and return the removed elements
+  _.remove(openOrders, (order) => {
+    // if the current order id is found in cancelledOrders > remove
+    if (_.findIndex(cancelledOrders, { 'id': order.id }) != -1)
+      return true
+    // if the current order id is found in cancelledOrders > remove
+    if (_.findIndex(filledOrders, { 'id': order.id }) != -1)
+      return true
+    // current order hasnt been found, then is still open
+    return false
+  })
+
+  return openOrders
+}
+
 export const orderBookSelector = createSelector(
-  store => store.exchange.orderBook.orders,
+  store => store.exchange.cancelled.orders,
+  store => store.exchange.filled.orders,
+  store => store.exchange.all.orders,
   store => store.tokens.contracts,
-  (orders, tokens) => {
+  (cancelledOrders, filledOrders, allOrders, tokens) => {
     // check that orders have loaded
-    if (!orders.length)
+    if (!(
+      cancelledOrders.length &&
+      filledOrders.length &&
+      allOrders.length
+    ))
       return
     // check that both tokens from the token pair have loaded
     if (!(tokens && tokens[1]))
@@ -62,7 +85,10 @@ export const orderBookSelector = createSelector(
 
     // filter the orders to only orders that have
     // token1&2 as base/quote or quote/base
-    let openOrders = filterPair(orders, token1, token2)
+    let openOrders = filterPair(allOrders, token1, token2)
+
+    // remove all cancelled and filled orders from the list
+    openOrders = filterOpenOrders(openOrders, cancelledOrders, filledOrders)
 
     // add extra fields for easier comparisons and display
     openOrders = decorateOrders(openOrders, token1, token2)
