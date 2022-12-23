@@ -148,9 +148,14 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
     case 'NEW_ORDER_SUCCESS':
       // DEDUP checking if the new order is already in the orders array
       // sometimes the event is fired multiple times
-      const orders = state.orderBook.orders
-      if (-1 === _.findIndex(orders, { 'id': action.order.id }))
-        orders.push(action.order)
+      let orders
+      if (-1 === _.findIndex(orders, { 'id': action.order.id })) {
+        // recreating a new array here is important so that reduc knows
+        // that the data changed. Using .push() for example would not work
+        orders = [...state.orderBook.orders, action.order]
+      } else {
+        orders = state.orderBook.orders
+      }
 
       return {
         ...state,
