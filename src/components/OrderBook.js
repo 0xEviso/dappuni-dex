@@ -17,7 +17,7 @@ const OrderBook = () => {
 
       <div className="flex">
 
-        {(openOrders && openOrders.sell.length) ? (
+        {(openOrders && openOrders.sell && openOrders.sell.length) ? (
 
           <table className='exchange__orderbook--sell'>
             <caption>Selling</caption>
@@ -41,7 +41,7 @@ const OrderBook = () => {
               </thead>
               <tbody>
 
-                {openOrders && openOrders.sell.map((order, index) => {
+                {openOrders.sell.map((order, index) => {
                   return (
                     <tr key={index}>
                       <td>{order.leftAmount}</td>
@@ -60,7 +60,7 @@ const OrderBook = () => {
 
         <div className='divider'></div>
 
-        {(openOrders && openOrders.buy.length) ? (
+        {(openOrders && openOrders.buy && openOrders.buy.length) ? (
 
           <table className='exchange__orderbook--buy'>
             <caption>Buying</caption>
@@ -84,7 +84,7 @@ const OrderBook = () => {
             </thead>
             <tbody>
 
-              {openOrders && openOrders.buy.map((order, index) => {
+              {openOrders.buy.map((order, index) => {
                 return (
                   <tr key={index}>
                     <td>{order.leftAmount}</td>
