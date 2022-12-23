@@ -147,12 +147,21 @@ export const makeOrder = async (order, exchange, tokens, provider, dispatch) => 
   dispatch({ type: 'NEW_ORDER_PENDING' })
 
   try {
+    let tokenGet, amountGet, tokenGive, amountGive
+
     const signer = await provider.getSigner()
 
-    const tokenGet = tokens[1].address
-    const amountGet = ethers.utils.parseUnits(order.baseAmount, 18)
-    const tokenGive = tokens[0].address
-    const amountGive = ethers.utils.parseUnits(order.baseAmount, 18)
+    if (order.isBuyMode === true) {
+      tokenGet = tokens[0].address
+      amountGet = ethers.utils.parseUnits(order.baseAmount, 18)
+      tokenGive = tokens[1].address
+      amountGive = ethers.utils.parseUnits(order.quoteAmount, 18)
+    } else {
+      tokenGet = tokens[1].address
+      amountGet = ethers.utils.parseUnits(order.quoteAmount, 18)
+      tokenGive = tokens[0].address
+      amountGive = ethers.utils.parseUnits(order.baseAmount, 18)
+    }
 
     // Create new order
     let transaction = await exchange.connect(signer)

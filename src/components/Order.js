@@ -41,7 +41,7 @@ const Order = () => {
       return
 
     makeOrder(
-      { baseAmount, quoteAmount },
+      { baseAmount, quoteAmount, isBuyMode },
       exchange,
       tokens,
       provider,
