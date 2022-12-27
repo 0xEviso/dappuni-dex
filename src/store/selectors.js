@@ -36,6 +36,7 @@ function decorateOrders(orders, token1, token2) {
       rightAmount,
       buySell,
       price: new BigNumber(leftAmount).dividedBy(rightAmount).toFixed(4),
+      formattedTimestamp: moment.unix(order.timestamp).format('h:mm:ssa d MMM D'),
     }
   })
 }
@@ -100,6 +101,33 @@ export const orderBookSelector = createSelector(
     return openOrders
 })
 
+export const filledOrdersSelector = createSelector(
+  store => store.exchange.filled.orders,
+  store => store.tokens.contracts,
+  (filledOrders, tokens) => {
+    // check that orders have loaded
+    if (!(filledOrders.length))
+      return
+    // check that both tokens from the token pair have loaded
+    if (!(tokens && tokens[1]))
+      return
+
+    let token1 = tokens[0].address
+    let token2 = tokens[1].address
+
+    // filter the orders to only orders that have
+    // token1&2 as base/quote or quote/base
+    let orders = filterPair(filledOrders, token1, token2)
+
+    // Sort orders by date ascending to compare history
+    orders = orders.sort((a, b) => b.timestamp - a.timestamp)
+
+    // add extra fields for easier comparisons and display
+    orders = decorateOrders(orders, token1, token2)
+
+    return orders
+})
+
 export const priceChartSelector = createSelector(
   store => store.exchange.filled.orders,
   store => store.tokens.contracts,
@@ -114,7 +142,6 @@ export const priceChartSelector = createSelector(
     // filter the orders to only orders that have
     // token1&2 as base/quote or quote/base
     let orders = filterPair(filledOrders, token1, token2)
-
 
     // Sort orders by date ascending to compare history
     orders = orders.sort((a, b) => a.timestamp - b.timestamp)
