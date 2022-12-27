@@ -8,7 +8,7 @@ const hre = require("hardhat")
 const config = require('../src/config.json')
 
 const tokens = (n) => {
-  return ethers.utils.parseUnits(n.toString(), 'ether')
+  return hre.ethers.utils.parseUnits(n.toString(), 'ether')
 }
 
 const wait = (seconds) => {
@@ -25,7 +25,7 @@ async function main() {
   const user2 = accounts[3]
 
   // Fetch network
-  const { chainId } = await ethers.provider.getNetwork()
+  const { chainId } = await hre.ethers.provider.getNetwork()
   console.log("Using chainId:", chainId)
 
   // Fetch deployed tokens
