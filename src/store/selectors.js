@@ -12,6 +12,7 @@ function filterPair(orders, token1, token2) {
     // check if t2 is base and t1 is quote
     if (order.tokenGive === token2 && order.tokenGet === token1)
       return true
+    // any item that returns false will be discarded
     return false
   })
 }
@@ -198,3 +199,54 @@ const buildGraphData = (orders) => {
 
   return graphData
 }
+
+const filterMakerUser = (orders, account) => {
+  return orders.filter((order) => {
+    // check if account is order maker
+    if (order.user === account)
+      return true
+    // any item that returns false will be discarded
+    return false
+  })
+}
+
+export const myOpenOrdersSelector = createSelector(
+  store => store.exchange.cancelled.orders,
+  store => store.exchange.filled.orders,
+  store => store.exchange.all.orders,
+  store => store.tokens.contracts,
+  store => store.provider.account,
+  (cancelledOrders, filledOrders, allOrders, tokens, account) => {
+    // check that orders have loaded
+    if (!(
+      cancelledOrders.length &&
+      filledOrders.length &&
+      allOrders.length
+    ))
+      return
+    // check that both tokens from the token pair have loaded
+    if (!(tokens && tokens[1]))
+      return
+
+    // check that user wallet is connected
+    if (!account)
+      return
+
+    let token1 = tokens[0].address
+    let token2 = tokens[1].address
+
+    // filter the orders to only orders that have
+    // token1&2 as base/quote or quote/base
+    let openOrders = filterPair(allOrders, token1, token2)
+
+    // remove all orders where the maker is not the current user
+    openOrders = filterMakerUser(openOrders, account)
+
+    // remove all cancelled and filled orders from the list
+    openOrders = filterOpenOrders(openOrders, cancelledOrders, filledOrders)
+
+    // add extra fields for easier comparisons and display
+    openOrders = decorateOrders(openOrders, token1, token2)
+
+    return openOrders
+})
