@@ -250,3 +250,51 @@ export const myOpenOrdersSelector = createSelector(
 
     return openOrders
 })
+
+const filterUser = (orders, account) => {
+  return orders.filter((order) => {
+    // check if account is order maker
+    if (order.maker === account)
+      return true
+    // check if account is order taker
+    if (order.taker === account)
+      return true
+    // any item that returns false will be discarded
+    return false
+  })
+}
+
+export const myTradesSelector = createSelector(
+  store => store.exchange.filled.orders,
+  store => store.tokens.contracts,
+  store => store.provider.account,
+  (filledOrders, tokens, account) => {
+    // check that orders have loaded
+    if (!(filledOrders.length))
+      return
+    // check that both tokens from the token pair have loaded
+    if (!(tokens && tokens[1]))
+      return
+
+    // check that user wallet is connected
+    if (!account)
+      return
+
+    let token1 = tokens[0].address
+    let token2 = tokens[1].address
+
+    // filter the orders to only orders that have
+    // token1&2 as base/quote or quote/base
+    let orders = filterPair(filledOrders, token1, token2)
+
+    // remove all orders where the maker or taker is not the current user
+    orders = filterUser(orders, account)
+
+    // Sort orders by date ascending to compare history
+    orders = orders.sort((a, b) => b.timestamp - a.timestamp)
+
+    // add extra fields for easier comparisons and display
+    orders = decorateOrders(orders, token1, token2)
+
+    return orders
+})

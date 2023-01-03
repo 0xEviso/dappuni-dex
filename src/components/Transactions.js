@@ -1,22 +1,42 @@
 import { useSelector } from "react-redux";
+import { useState } from 'react';
 
 import sortImage from '../assets/sort.svg'
+import Banner from './Banner';
 
-import { myOpenOrdersSelector } from "../store/selectors";
+import { myOpenOrdersSelector, myTradesSelector } from "../store/selectors";
 
 const Transactions = () => {
   const tokenSymbols = useSelector(store => store.tokens.symbols)
 
   const myOpenOrders = useSelector(myOpenOrdersSelector)
+  const myTrades = useSelector(myTradesSelector)
+
+  let [showOrders, setShowOrders] = useState(true)
 
   return (
     <div className="component exchange__transactions">
-      <div>
-        <div className='component__header flex-between'>
-          <h2>My Orders</h2>
-        </div>
+      <div className='component__header flex-between'>
+        <h2>{ showOrders ? 'My Orders' : 'My Trades' }</h2>
 
-        {(myOpenOrders && myOpenOrders.length) ? (
+        <div className='tabs'>
+          <button
+            className={showOrders? "tab tab--active" : "tab"}
+            onClick={(e) => {setShowOrders(true)}}
+          >
+            Orders
+          </button>
+          <button
+            className={showOrders? "tab" : "tab tab--active"}
+            onClick={(e) => {setShowOrders(false)}}
+          >
+            Trades
+          </button>
+        </div>
+      </div>
+
+      {showOrders ? (
+        (myOpenOrders && myOpenOrders.length) ? (
 
           <table>
             <thead>
@@ -52,42 +72,49 @@ const Transactions = () => {
           </table>
 
         ) : (
-          <p className='flex-center'>No Orders</p>
-        )}
+          <Banner text='No Open Orders'/>
+        )
+      ) : (
+        (myTrades && myTrades.length) ? (
 
-      </div>
+          <table>
+            <thead>
+              <tr>
+                <th>
+                  {tokenSymbols && tokenSymbols[0]}
+                  <img src={sortImage} alt="Sort" />
+                </th>
+                <th>
+                  {tokenSymbols && tokenSymbols[0]}
+                  /
+                  {tokenSymbols && tokenSymbols[1]}
+                  <img src={sortImage} alt="Sort" />
+                </th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
 
+              {myTrades.map((order, index) => {
+                return (
+                  <tr key={index}>
+                    <td style={{color: order.buySell === 'buy' ? '#F45353' : '#25CE8F'}}>
+                      {order.leftAmount}
+                    </td>
+                    <td>{order.price}</td>
+                    <td></td>
+                  </tr>
+                )
+              })}
 
-      {/* <div> */}
-        {/* <div className='component__header flex-between'> */}
-          {/* <h2>My Transactions</h2> */}
+            </tbody>
+          </table>
 
-          {/* <div className='tabs'> */}
-            {/* <button className='tab tab--active'>Orders</button> */}
-            {/* <button className='tab'>Trades</button> */}
-          {/* </div> */}
-        {/* </div> */}
+        ) : (
+          <Banner text='No Trades'/>
+        )
+      )}
 
-        {/* <table> */}
-          {/* <thead> */}
-            {/* <tr> */}
-              {/* <th></th> */}
-              {/* <th></th> */}
-              {/* <th></th> */}
-            {/* </tr> */}
-          {/* </thead> */}
-          {/* <tbody> */}
-
-            {/* <tr> */}
-              {/* <td></td> */}
-              {/* <td></td> */}
-              {/* <td></td> */}
-            {/* </tr> */}
-
-          {/* </tbody> */}
-        {/* </table> */}
-
-      {/* </div> */}
     </div>
   )
 }
