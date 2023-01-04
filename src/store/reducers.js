@@ -80,6 +80,7 @@ const EXCHANGE_DEFAULT_STATE = {
   },
   cancelled: {
     loaded: false,
+    inProgress: false,
     orders: [],
   },
 }
@@ -175,22 +176,58 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
       // DEDUP checking if the new order is already in the orders array
       // sometimes the event is fired multiple times
       let orders
-      if (-1 === _.findIndex(orders, { 'id': action.order.id })) {
+      if (-1 === _.findIndex(state.all.orders, { 'id': action.order.id })) {
         // recreating a new array here is important so that reduc knows
         // that the data changed. Using .push() for example would not work
         orders = [...state.all.orders, action.order]
       } else {
         orders = state.all.orders
       }
-
       return {
         ...state,
         all: {
           ...state.all,
           orderInProgress: false,
-          orders,
         },
       }
+
+      // CANCELLING ORDERS
+      case 'CANCEL_ORDER_PENDING':
+      return {
+        ...state,
+        cancelled: {
+          ...state.cancelled,
+          inProgress: true,
+        },
+      }
+    case 'CANCEL_ORDER_FAIL':
+      return {
+        ...state,
+        cancelled: {
+          ...state.cancelled,
+          inProgress: false,
+        },
+      }
+    case 'CANCEL_ORDER_SUCCESS':
+      // DEDUP checking if the cancelled order is already in the array
+      // sometimes the event is fired multiple times
+      let cancelledOrders
+      if (-1 === _.findIndex(state.cancelled.orders, { 'id': action.order.id })) {
+        // recreating a new array here is important so that reduc knows
+        // that the data changed. Using .push() for example would not work
+        cancelledOrders = [...state.cancelled.orders, action.order]
+      } else {
+        cancelledOrders = state.cancelled.orders
+      }
+      return {
+        ...state,
+        cancelled: {
+          ...state.cancelled,
+          inProgress: false,
+          orders: cancelledOrders,
+        },
+      }
+
     default:
       return state
   }
