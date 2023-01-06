@@ -1,13 +1,22 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import sortImage from '../assets/sort.svg'
+import { fillOrder } from "../store/interactions";
 
 import { orderBookSelector } from "../store/selectors";
 
 const OrderBook = () => {
+  const dispatch = useDispatch()
+
   const tokenSymbols = useSelector(store => store.tokens.symbols)
+  const exchange = useSelector(store => store.exchange.contract)
+  const provider = useSelector(store => store.provider.connection)
 
   const openOrders = useSelector(orderBookSelector)
+
+  const onClickHandler = (order) => {
+    fillOrder(order, exchange, provider, dispatch)
+  }
 
   return (
     <div className="component exchange__orderbook">
@@ -43,7 +52,7 @@ const OrderBook = () => {
 
                 {openOrders.sell.map((order, index) => {
                   return (
-                    <tr key={index}>
+                    <tr key={index} onClick={e => onClickHandler(order)}>
                       <td>{order.leftAmount}</td>
                       <td style={{color:'#F45353'}}>{order.price}</td>
                       <td>{order.rightAmount}</td>
@@ -86,7 +95,7 @@ const OrderBook = () => {
 
               {openOrders.buy.map((order, index) => {
                 return (
-                  <tr key={index}>
+                  <tr key={index} onClick={e => onClickHandler(order)}>
                     <td>{order.leftAmount}</td>
                     <td style={{color:'#25CE8F'}}>{order.price}</td>
                     <td>{order.rightAmount}</td>

@@ -76,6 +76,7 @@ const EXCHANGE_DEFAULT_STATE = {
   },
   filled: {
     loaded: false,
+    inProgress: false,
     orders: [],
   },
   cancelled: {
@@ -191,8 +192,8 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
         },
       }
 
-      // CANCELLING ORDERS
-      case 'CANCEL_ORDER_PENDING':
+    // CANCELLING ORDERS
+    case 'CANCEL_ORDER_PENDING':
       return {
         ...state,
         cancelled: {
@@ -225,6 +226,43 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
           ...state.cancelled,
           inProgress: false,
           orders: cancelledOrders,
+        },
+      }
+
+    // FILLING ORDERS
+    case 'FILL_ORDER_PENDING':
+      return {
+        ...state,
+        filled: {
+          ...state.filled,
+          inProgress: true,
+        },
+      }
+    case 'FILL_ORDER_FAIL':
+      return {
+        ...state,
+        filled: {
+          ...state.filled,
+          inProgress: false,
+        },
+      }
+    case 'FILL_ORDER_SUCCESS':
+      // DEDUP checking if the filled order is already in the array
+      // sometimes the event is fired multiple times
+      let filledOrders
+      if (-1 === _.findIndex(state.filled.orders, { 'id': action.order.id })) {
+        // recreating a new array here is important so that reduc knows
+        // that the data changed. Using .push() for example would not work
+        filledOrders = [...state.filled.orders, action.order]
+      } else {
+        filledOrders = state.filled.orders
+      }
+      return {
+        ...state,
+        filled: {
+          ...state.filled,
+          inProgress: false,
+          orders: filledOrders,
         },
       }
 
