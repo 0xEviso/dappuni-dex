@@ -68,20 +68,21 @@ const EXCHANGE_DEFAULT_STATE = {
   loaded: false,
   contract: null,
   balances: [],
-  transferInProgress: false,
+  tx: {
+    inProgress: false,
+    isError: false,
+    events: [],
+  },
   all: {
     loaded: false,
-    orderInProgress: false,
     orders: [],
   },
   filled: {
     loaded: false,
-    inProgress: false,
     orders: [],
   },
   cancelled: {
     loaded: false,
-    inProgress: false,
     orders: [],
   },
 }
@@ -112,19 +113,31 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
       return {
         ...state,
         balances: [...state.balances, action.balance],
-        transferInProgress: true,
+        tx: {
+          ...state.tx,
+          inProgress: true,
+          isError: false,
+        },
       }
     case 'TRANSACTION_FAIL':
       return {
         ...state,
         balances: [...state.balances, action.balance],
-        transferInProgress: false,
+        tx: {
+          ...state.tx,
+          inProgress: false,
+          isError: true,
+        },
       }
     case 'TRANSACTION_SUCCESS':
       return {
         ...state,
         balances: [...state.balances, action.balance],
-        transferInProgress: false,
+        tx: {
+          ...state.tx,
+          inProgress: false,
+          events: [action.event, ...state.tx.events],
+        },
       }
 
     // ALL ORDERS LOADING
@@ -164,13 +177,22 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
           ...state.all,
           orderInProgress: true,
         },
+        tx: {
+          ...state.tx,
+          inProgress: true,
+          isError: false,
+        },
       }
     case 'NEW_ORDER_FAIL':
       return {
         ...state,
         all: {
           ...state.all,
-          orderInProgress: false,
+        },
+        tx: {
+          ...state.tx,
+          inProgress: false,
+          isError: true,
         },
       }
     case 'NEW_ORDER_SUCCESS':
@@ -188,7 +210,11 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
         ...state,
         all: {
           ...state.all,
-          orderInProgress: false,
+        },
+        tx: {
+          ...state.tx,
+          inProgress: false,
+          events: [action.event, ...state.tx.events],
         },
       }
 
@@ -198,7 +224,11 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
         ...state,
         cancelled: {
           ...state.cancelled,
+        },
+        tx: {
+          ...state.tx,
           inProgress: true,
+          isError: false,
         },
       }
     case 'CANCEL_ORDER_FAIL':
@@ -206,7 +236,11 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
         ...state,
         cancelled: {
           ...state.cancelled,
+        },
+        tx: {
+          ...state.tx,
           inProgress: false,
+          isError: true,
         },
       }
     case 'CANCEL_ORDER_SUCCESS':
@@ -224,8 +258,12 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
         ...state,
         cancelled: {
           ...state.cancelled,
-          inProgress: false,
           orders: cancelledOrders,
+        },
+        tx: {
+          ...state.tx,
+          inProgress: false,
+          events: [action.event, ...state.tx.events],
         },
       }
 
@@ -235,7 +273,11 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
         ...state,
         filled: {
           ...state.filled,
+        },
+        tx: {
+          ...state.tx,
           inProgress: true,
+          isError: false,
         },
       }
     case 'FILL_ORDER_FAIL':
@@ -243,7 +285,11 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
         ...state,
         filled: {
           ...state.filled,
+        },
+        tx: {
+          ...state.tx,
           inProgress: false,
+          isError: true,
         },
       }
     case 'FILL_ORDER_SUCCESS':
@@ -261,8 +307,12 @@ export const exchange = (state = EXCHANGE_DEFAULT_STATE, action) => {
         ...state,
         filled: {
           ...state.filled,
-          inProgress: false,
           orders: filledOrders,
+        },
+        tx: {
+          ...state.tx,
+          inProgress: false,
+          events: [action.event, ...state.tx.events],
         },
       }
 

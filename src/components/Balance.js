@@ -17,7 +17,7 @@ const Balance = () => {
   const tokenSymbols = useSelector(store => store.tokens.symbols)
   const tokenBalances = useSelector(store => store.tokens.balances)
   const exchangeBalances = useSelector(store => store.exchange.balances)
-  const txIsPending = useSelector(store => store.exchange.transferInProgress)
+  const txIsPending = useSelector(store => store.exchange.tx.InProgress)
 
   let [token1Amount, setToken1Amount] = useState(0)
   let [token2Amount, setToken2Amount] = useState(0)

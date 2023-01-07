@@ -298,3 +298,14 @@ export const myTradesSelector = createSelector(
 
     return orders
 })
+
+// simple user filtering of events
+export const myEventsSelector = createSelector(
+  store => store.provider.account,
+  store => store.exchange.tx.events,
+  (account, events) => {
+    events = events.filter((e) => e.args && e.args.user === account)
+    console.log('myEventsSelector', events)
+    return events
+  }
+)
